@@ -12,11 +12,15 @@ type JobStatus = { status?: string; stage?: string; progressPercent?: number; er
 type Notes = { text: string; pinnedEvidenceIds: string[]; suspectMarks: Record<string, 'suspect' | 'cleared' | 'unknown'> }
 
 // ── API ──────────────────────────────────────────────────────────────
-const API_CANDIDATES = ['http://localhost:5003/api/v1', 'http://localhost:5004/api/v1', 'http://localhost:5000/api/v1']
+const API_CANDIDATES: string[] = import.meta.env.VITE_API_BASE
+  ? [import.meta.env.VITE_API_BASE as string]
+  : ['http://localhost:5000/api/v1', 'http://localhost:5003/api/v1', 'http://localhost:5004/api/v1']
 let _resolvedBase: string | null = null
 
 async function getApiBase(): Promise<string> {
   if (_resolvedBase) return _resolvedBase
+  // In production VITE_API_BASE is the only candidate — use it directly
+  if (API_CANDIDATES.length === 1) { _resolvedBase = API_CANDIDATES[0]; return _resolvedBase }
   for (const base of API_CANDIDATES) {
     try {
       const r = await fetch(base.replace('/api/v1', '/health'), { signal: AbortSignal.timeout(1500) })

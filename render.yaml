@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: ai-mystery-room-api
+    runtime: node
+    region: singapore
+    plan: free
+    rootDir: server
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_TEXT_MODEL
+        value: gemini-2.0-flash
+      - key: GEMINI_REASONING_MODEL
+        value: gemini-2.0-flash-thinking-exp
+      - key: GEMINI_IMAGE_MODEL
+        value: imagen-3.0-generate-002
+      - key: ENABLE_VIDEO_GEN
+        value: false
+      - key: IMAGE_CONCURRENCY
+        value: 3
+      - key: MAX_GEMINI_CALLS_PER_CASE
+        value: 40
+      - key: DAILY_CASE_QUOTA_USER
+        value: 5
+      - key: DAILY_CASE_QUOTA_GUEST
+        value: 2
+      - key: CLIENT_ORIGIN
+        sync: false   # Set this to your Vercel URL after deploying frontend

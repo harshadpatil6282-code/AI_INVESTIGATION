@@ -31,7 +31,20 @@ const uploadLimiter = rateLimit({
 });
 
 app.use(helmet());
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({
+  origin: (origin: string | undefined, cb: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (mobile apps, curl, Render health checks)
+    if (!origin) return cb(null, true);
+    const allowed = (process.env.CLIENT_ORIGIN ?? '')
+      .split(',').map(o => o.trim()).filter(Boolean);
+    // In development allow everything; in production check the allow-list
+    if (process.env.NODE_ENV !== 'production' || allowed.length === 0 || allowed.includes(origin)) {
+      return cb(null, true);
+    }
+    cb(new Error(`CORS: origin ${origin} not allowed`));
+  },
+  credentials: true,
+}));
 app.use(express.json({ limit: '100kb' }));
 app.use((req, _res, next) => {
   console.info(`${req.method} ${req.path}`);
